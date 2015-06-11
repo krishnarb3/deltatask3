@@ -17,7 +17,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -26,12 +25,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
-import static android.widget.Toast.makeText;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -60,9 +56,9 @@ public class MainActivity extends AppCompatActivity {
                task = new LocationTask();
                 try {
                     ArrayList<HashMap<String,String>> mainarray = task.execute().get();
-                    Float i = Float.parseFloat(mainarray.get(0).get("value"));
-                    Float j = Float.parseFloat(mainarray.get(0).get("max"));
-                    Float k = Float.parseFloat(mainarray.get(0).get("min"));
+                    Float i = Float.parseFloat(mainarray.get(1).get("value"));
+                    Float j = Float.parseFloat(mainarray.get(1).get("max"));
+                    Float k = Float.parseFloat(mainarray.get(1).get("min"));
                     String S = mainarray.get(0).get("name");
                     i=i-Float.parseFloat("273.14");
                     Double roundOff = Math.round(i * 100.0) / 100.0;
@@ -73,9 +69,10 @@ public class MainActivity extends AppCompatActivity {
                     k=k-Float.parseFloat("273.14");
                     Double roundOff2 = Math.round(k * 100.0) / 100.0;
                     String temp2 =roundOff2.toString();
-                    textView.setText(temp+"°\n");
+                    textView.setText(temp+"°\n"+S);
                     if(!(temp1.equals(temp2))) {
                         textView2.setText(temp1 + "/" + temp2);
+                        editText.setText(location+" - "+S);
                     }
                     relativelayout.setBackgroundResource(R.drawable.clouds);
                 } catch (InterruptedException e) {
@@ -108,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
             } catch (MalformedURLException e) {
             Log.d(TAG,"URL ERROR");
             }
-            //Log.d(TAG,newarray.toString());
             return newarray;
         }
     }
@@ -116,70 +112,37 @@ public class MainActivity extends AppCompatActivity {
     {
         DocumentBuilderFactory documententfactory = DocumentBuilderFactory.newInstance();
         ArrayList<HashMap<String,String>> arrayList = new ArrayList<HashMap<String, String>>();
-        /*DocumentBuilderFactory documententfactory1 = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentbuilder1 = null;
-        try {
-            documentbuilder1 = documententfactory1.newDocumentBuilder();
-            Document doc1 = null;
-            doc1 = documentbuilder1.parse(inputstream);
-            org.w3c.dom.Element root1 = doc1.getDocumentElement();
-            NodeList nodeList1 = root1.getElementsByTagName("clouds");
-            Node currentnode1 = null;
-            NamedNodeMap newmap1 = null, currentmap1 = null;
-            Node att1 = null;
-            HashMap<String, String> hashMap1 = null;
-            Log.d(TAG, (Integer.toString(nodeList1.getLength())));
-            for (int j = 0; j < nodeList1.getLength(); j++) {
-                currentnode1 = nodeList1.item(j);
-                hashMap1 = new HashMap<>();
-                Log.d(TAG, currentnode1.getNodeName());
-                hashMap1.put("clouds", currentnode1.getNodeName());
-                arrayList.add(hashMap1);
-                currentmap1 = currentnode1.getAttributes();
-                att1 = currentmap1.item(1);
-                Log.d(TAG, att1.getNodeName() + " " + att1.getTextContent());
-                hashMap1.put("name", att1.getTextContent());
-            }
-            arrayList.add((HashMap<String, String>) currentmap1);
-        }catch (Exception  e){}*/
         try {
             DocumentBuilder documentbuilder = documententfactory.newDocumentBuilder();
             Document doc = documentbuilder.parse(inputstream);
             org.w3c.dom.Element root = doc.getDocumentElement();
-            //Log.d(TAG,root.getTagName());
             NodeList nodeList = root.getElementsByTagName("temperature");
             NodeList nodeList2 = root.getElementsByTagName("clouds");
-            Log.d(TAG, nodeList2.toString());
             Node currentnode = null;
             Node currentnode2 = null;
             Node att = null;
             Node att2 = null;
-            NamedNodeMap newmap = null, currentmap = null;
-            NamedNodeMap newmap2=null,currentmap2=null;
-            Log.d(TAG, (Integer.toString(nodeList.getLength())));
-            Log.d(TAG, (Integer.toString(nodeList2.getLength())));
+            NamedNodeMap currentmap = null;
+            NamedNodeMap currentmap2=null;
             HashMap<String, String> hashMap = null,hashMap2 = null;
             for(int j=0;j<nodeList2.getLength();j++)
             {
                 currentnode2 = nodeList2.item(j);
                 hashMap2 = new HashMap<>();
-                Log.d(TAG, currentnode2.getNodeName());
-                /*currentmap2 = currentnode2.getAttributes();
-                att2 = currentmap2.item(0);
-                Log.d(TAG, att2.getTextContent());
+                currentmap2 = currentnode2.getAttributes();
+                att2 = currentmap2.item(1);
                 hashMap2.put("name",att2.getTextContent());
-                arrayList.add((HashMap<String,String>) currentmap2);*/
+                Log.d(TAG, att2.getTextContent());
+                arrayList.add(hashMap2);
             }
             for (int i = 0; i < nodeList.getLength(); i++) {
                 currentnode = nodeList.item(i);
                 hashMap = new HashMap<>();
-                Log.d(TAG, currentnode.getNodeName());
                 hashMap.put("temperature", currentnode.getNodeName());
                 arrayList.add(hashMap);
                 currentmap = currentnode.getAttributes();
                 for (int k = 0; k < currentmap.getLength(); k++) {
                     att = currentmap.item(k);
-                    //Log.d(TAG, att.getNodeName() + " " + att.getTextContent());
                     switch (k) {
                         case 0:
                             hashMap.put("value", att.getTextContent());
@@ -194,10 +157,7 @@ public class MainActivity extends AppCompatActivity {
                             hashMap.put("unit", att.getTextContent());
                             break;
                     }
-                    //arrayList.add(hashMap);
                 }
-                arrayList.add((HashMap<String, String>) currentmap);
-                Log.d(TAG, "ERROR");
             }
 
         }catch (Exception e) {}
