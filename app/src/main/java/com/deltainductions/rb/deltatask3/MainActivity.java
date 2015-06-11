@@ -74,7 +74,10 @@ public class MainActivity extends AppCompatActivity {
                         textView2.setText(temp1 + "/" + temp2);
                         editText.setText(location+" - "+S);
                     }
-                    relativelayout.setBackgroundResource(R.drawable.clouds);
+                    if(S.equals("clear sky"))
+                        relativelayout.setBackgroundResource(R.drawable.sunnyskymeadowim);
+                    else
+                        relativelayout.setBackgroundResource(R.drawable.clouds);
                 } catch (InterruptedException e) {
 
                 } catch (ExecutionException e) {
